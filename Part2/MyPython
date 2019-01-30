@@ -1,35 +1,30 @@
-from threading import Thread
+from threading import Lock, Thread
+lock = Lock()
+i = -1
 
-# Potentially useful thing:
-#   In Python you "import" a global variable, instead of "export"ing it when you declare it
-#   (This is probably an effort to make you feel bad about typing the word "global")
-i = 0
-
-def incrementingFunction():
+def add_one():
     global i
-    for j in range(1000000):
+    lock.acquire()
+    for j in range(1000):
         i+=1
+        #print(i)
+    lock.release()
+#print(i)
 
-def decrementingFunction():
+def add_two():
     global i
-    for j in range(1000000):
+    lock.acquire()
+    for j in range(1000):
         i-=1
+        #print(i)
+    lock.release()
 
 
+threads = []
+for func in [add_one, add_two]:
+   threads.append(Thread(target=func))
+   threads[-1].start()
 
-def main():
-    global i
-
-    incrementing = Thread(target = incrementingFunction, args = (),)
-    decrementing = Thread(target = decrementingFunction, args = (),)
-    
-    incrementing.start()
-    decrementing.start()
-    
-    incrementing.join()
-    decrementing.join()
-    
-    print("The magic number is %d" % (i))
-
-
-main()
+for thread in threads:
+  
+   thread.join()
