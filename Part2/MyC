@@ -1,0 +1,57 @@
+#include <pthread.h>
+#include <stdio.h>
+
+void *i=1;
+pthread_mutex_t lock;
+
+void *Thread1()
+{
+    int count1 = 0;
+    pthread_mutex_lock(&lock);
+    while (count1<1000000)
+    {
+        count1++;
+        i++;
+    }
+    pthread_mutex_unlock(&lock);
+    return (void *) i;
+}
+void *Thread2()
+{
+    int count2 = 0;
+    pthread_mutex_lock(&lock);
+    while (count2<1000300)
+    {
+        count2++;
+        i--;
+    }
+    pthread_mutex_unlock(&lock);
+    return (void *) i;
+}
+
+int main()
+{
+    if (pthread_mutex_init(&lock, NULL) != 0)
+	{
+		printf("\n mutex init failed\n");
+		return 1;
+}
+
+   pthread_t tid1;
+   pthread_t tid2;
+
+   pthread_create(&tid1, NULL, Thread1, NULL);
+   pthread_create(&tid2, NULL, Thread2, NULL);
+
+   printf("%d\n",(int)i);
+
+   pthread_join(tid1, &i);
+    // printf("%d\n",(int)i);
+   pthread_join(tid2, &i);
+
+   printf("%d\n",(int)i);
+
+
+
+   return 0;
+}
